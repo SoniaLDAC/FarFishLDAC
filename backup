@@ -8,65 +8,103 @@
 #
 
 library(shiny)
-
+library(rsconnect)
 
 #lectura de datos
 senegal <- read.csv("senegal.csv", sep=",")
+library(readr)
+senegal2 <- read.csv("senegal2.csv", sep=";", fileEncoding="latin1")
+SENEGAL3 <- read.csv("SENEGAL3.csv", sep=";", fileEncoding="latin1")
+mauritania <- read.csv("mauritania.csv", sep=";", fileEncoding="latin1")
+mauritania2 <- read.csv("mauritania2.csv", sep=";", fileEncoding="latin1")
+
+senegalporpais <- senegal2
+senegalperyear <- SENEGAL3
+mauritaniaperflag <- mauritania2
+mauritaniaperyear <- mauritania
+
+library(markdown)
+
 
 # Define UI for application that draws a histogram
-ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80),
-                 mainPanel(h1(""),
-                           p("Check the main results for the FarFish H2020 project. Choose on the left side panel one of our Case Studies (CS), and the Work Package (WP) you want to see the results of."),
-                           tags$div(tags$ul(
-                               tags$li(span("WP1", style = "color:blue"),"Stakeholders"),
-                               tags$li(span("WP2", style = "color:blue"),"Advancing Biological knowledge and evaluation of current stock assessment models"),
-                               tags$li(span("WP3", style = "color:blue"),"Value chain analysis, evaluation of existing governance structure and policy recommendations"),
-                               tags$li(span("WP4", style = "color:blue"),"Development of Management Recommendations"),
-                               tags$li(span("WP5", style = "color:blue"),"Evaluation and implementation of management plans"),
-                               tags$li(span("WP6", style = "color:blue"),"Development of management tools"),
-                               tags$li(span("WP7", style = "color:blue"),"Capacity building and dissemination")),  style = "font-size: 15px"),
-                           
-                           textOutput(outputId = "textCS"),
-                           textOutput(outputId = "textWP"),
-                           verbatimTextOutput("verb")
-                           
-                 ),
-                 
+ui <- navbarPage("FarFish H2020",
+                 navbarMenu("Home",
 
+                           tabPanel("Projec summary", 
+                                    HTML('<center><img src="logo.png" height"420" width="400"></center>'),
+                           br(),
+                           p("The FarFish project (www.farfish.eu) is a four-yearResearch & Innovation project that started in June 2017 and will finish in November 2021. It is funded
+by the European framework programme HORIZON 2020 under grant nº727891. The focus of the project is on providing knowledge, tools and methods to support responsible, sustainable and profitable EU fisheries outside European waters."),
+                           br(),
+                           p("Check the main results for the FarFish H2020 project per Case Study",style = "color: darkblue"), ("Choose from the top bar the aspect of interest for each one of our Case Studies (CS), or learn more about our FarFish DLMTool. The work within FarFish was divided in Work Packages (WPs), but to make it more intuitive, we separated here the information and reliverables per theme and not per WP. 
+                             The WPs were the following:"),
+                           tags$div(tags$ul(
+                             tags$li(span("WP1", style = "color:blue"),"Stakeholders"),
+                             tags$li(span("WP2", style = "color:blue"),"Advancing Biological knowledge and evaluation of current stock assessment models"),
+                             tags$li(span("WP3", style = "color:blue"),"Value chain analysis, evaluation of existing governance structure and policy recommendations"),
+                             tags$li(span("WP4", style = "color:blue"),"Development of Management Recommendations"),
+                             tags$li(span("WP5", style = "color:blue"),"Evaluation and implementation of management plans"),
+                             tags$li(span("WP6", style = "color:blue"),"Development of management tools"),
+                             tags$li(span("WP7", style = "color:blue"),"Capacity building and dissemination")),  style = "font-size: 15px"),
+                       
+                           HTML('<right><img src="eu.png" height"420" width="400"></right>')
+                         
+                 )),
                  
                 navbarMenu("Atlantic SouthWest",
-                           tabPanel("Background",includeMarkdown("ASW.Rmd")),
-                           a(h5("Case study characterization"),
-                             href = "https://zenodo.org/record/3065943#.YRt1v4gzZPY",
-                             target = "blank"),
-                           tabPanel("Stakeholder interaction", h1("Stakeholder interaction in the Atlantic SouthWest", style = "color: darkblue"), 
-                           p(""),#INCLUDE MARKDOWN EXPLAINING START OF DIAOGUE BETWEEN STAKEHOLDERS. sEND TO WP7 TAB TO SEE EVENTS
-                           h1("Main deliverables for this WP", style = "color: darkblue"),
-                           a(h5("Executive report on the stakeholder Hub: attributes, tools and feedback"),
-                             href = "https://zenodo.org/record/3064929#.YRtzy4gzZPY",
-                             target = "blank"),
-                           a(h5("Intermediate report on the Stakeholder Hub implementation: lessons learnt and improvement areas for the second spiral interaction"),
-                             href = "https://zenodo.org/record/4565129#.YRuKg4gzZPY",
-                             target = "blank")
+                           tabPanel("Background",includeMarkdown("ASW.Rmd"),
+                                    a(h5("Case study characterization"),
+                                       href = "https://zenodo.org/record/3065943#.YRt1v4gzZPY",
+                                       target = "blank")),
+                          tabPanel("Stakeholder interaction", h1("Stakeholder interaction in the Atlantic SouthWest", style = "color: darkblue"), 
+                                   includeMarkdown("StakeholderASW.Rmd"),#INCLUDE MARKDOWN EXPLAINING START OF DIAOGUE BETWEEN STAKEHOLDERS. sEND TO WP7 TAB TO SEE EVENTS
+                                    h1("Main deliverables for this WP", style = "color: darkblue"),
+                                    a(h5("Executive report on the stakeholder Hub: attributes, tools and feedback"),
+                                       href = "https://zenodo.org/record/3064929#.YRtzy4gzZPY",
+                                       target = "blank"),
+                                    a(h5("Intermediate report on the Stakeholder Hub implementation: lessons learnt and improvement areas for the second spiral interaction"),
+                                       href = "https://zenodo.org/record/4565129#.YRuKg4gzZPY",
+                                       target = "blank")
                                     ),
                            
-                           tabPanel("Scientific advances", h1(span("Main Deliverables", style = "color: darkblue"),"on biological knowledge"),
+                           tabPanel("Scientific advances", includeMarkdown("Scientific.Rmd"),h1("Main Deliverables on biological knowledge", style = "color: darkblue"),
                                     a(h5("Review of current stock assessment models used in the FarFish Case Studies"),
                                       href = "https://zenodo.org/record/4555710#.YRuJTogzZPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Model outputs and indicators"),
+                                      href = "https://zenodo.org/record/5541269#.YYkD4WDMJPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Historical Fisheries data"),
+                                      href = "https://zenodo.org/record/5541279#.YYkE9mDMJPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Biological Fisheries data"),
+                                      href = "https://zenodo.org/record/5541281#.YYkE4WDMJPY",
                                       target = "blank")
                                     
                                     ),
-                           tabPanel("Governance and value chain analysis", h1(span("Main Deliverables", style = "color: darkblue"),"on value chain and governance"),
+                           tabPanel("Governance and value chain analysis", includeMarkdown("Governance.Rmd"),h1("Main Deliverables on value chain and governance", style = "color: darkblue"),
                                     a(h5("Evaluation of the governance structures of the cases"),
                                       href = "https://zenodo.org/record/3073754#.YRt5DIgzZPY",
                                       target = "blank"),
                                     a(h5("Description on the Case Study Value Chains"),
                                       href = "https://zenodo.org/record/3074057#.YRuArIgzZPY",
+                                      target = "blank"),
+                                    a(h5("Catches of three main species in the Southwest Atlantic area FAO 41 (FishStatJ)"),
+                                      href = "https://zenodo.org/record/5603362#.YYkGs2DMJPY",
+                                      target = "blank"),
+                                    a(h5("Catches of three main species in the Southwest Atlantic area FAO41 (FAO capture)"),
+                                      href = "https://zenodo.org/record/5607698#.YYkIZmDMJPY",
+                                      target = "blank"),
+                                    a(h5("Trade data Argentine hake -Southwest Atlantic FAO area 41"),
+                                      href = "https://zenodo.org/record/5616246#.YYkIzWDMJPY",
+                                      target = "blank"),
+                                    a(h5("Catches of Argentine hake from thepatagonian stock in the Southwest Atlantic"),
+                                      href = "https://zenodo.org/record/5616472#.YYkJCWDMJPY",
                                       target = "blank")
                                     ),
-                           tabPanel("Management recommendations (MRs)", h1(span("Management Recommendations", style = "color: darkblue"),": invitations, reports and lessons learnt"),
-                                    p("The guidelines on how to develop the MRs, and the invitation letters, can be found in the WP3 tab"),
-                                    h1("Main deliverables for this WP", style = "color: darkblue"),
+                           tabPanel("Management recommendations (MRs)", includeMarkdown("Visualization.Rmd"),h1(span("Management Recommendations", style = "color: darkblue"),": invitations, reports and lessons learnt"),
+                                    includeMarkdown("MRASW.Rmd"),
+                                    h1("Main deliverables related to the MR proccess", style = "color: darkblue"),
                                     a(h5("General Guidelines for making MRs"),
                                       href = "https://zenodo.org/record/3073298#.YRt3qYgzZPY",
                                       target = "blank"),
@@ -89,7 +127,8 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       href = "https://zenodo.org/record/4580234#.YRuTy4gzZPY",
                                       target = "blank")
                                     ),
-                           tabPanel("Audit", h1(span("Audit results", style = "color: darkblue"),"for each of the MRs"),
+                           tabPanel("Audit",  includeMarkdown("Audit.Rmd"),
+                                    h1(span("Audit results", style = "color: darkblue"),"for each of the MRs"),
                                     a(h5("Report on challenges and suggestions for improvements (following analysis of governance and socio-economics in the FarFish case studies)"),
                                       href = "https://zenodo.org/record/4445727#.YRuFtYgzZPY",
                                       target = "blank"),
@@ -99,7 +138,8 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                     a(h5("Audit of Management Recommendations 1"),
                                       href = "https://zenodo.org/record/4555772#.YRuJ9ogzZPY",
                                       target = "blank")),
-                           tabPanel("Visualisation materials and tools", h1(span("Visualization", style = "color: darkblue"),"of data gathered and other tools"),
+                           tabPanel("Visualisation materials and tools", includeMarkdown("Visualization.Rmd"),
+                                    h1(span("Visualization", style = "color: darkblue"),"of data gathered and other tools"),
                                     a(h5("Visualisation materials and tools available for MR1 development"),
                                       href = "https://zenodo.org/record/3074872#.YRuB-ogzZPY",
                                       target = "blank"),
@@ -114,11 +154,24 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       target = "blank"),
                                     a(h5("Interactive Platform to integrate codes, visualization and data interaction tools for the Case Studies"),
                                       href = "https://zenodo.org/record/4582010#.YRuX8ogzZPY",
+                                      target = "blank"),
+                                    a(h5("FarFish FFDB Decision Support and visualisation tools outputs"),
+                                      href = "https://zenodo.org/record/5541290#.YYkFJWDMJPY",
                                       target = "blank")),
-                           tabPanel("Dissemination and capacity building", h1(span("Main Events", style = "color: darkblue"),"and workshops"),
+                           tabPanel("Dissemination and capacity building", includeMarkdown("Dissemination.Rmd"),
+                                    h1(span("Main Events", style = "color: darkblue"),"and workshops"),
                                     tags$div( #(tags$ul()) si quiero meter sangria
                                     tags$li(span("Main Deliverables", style = "color:darkblue")), 
-                                    a(h5("Deliverable 7.7: Tutor Web educational material"),
+                                    a(h5("Dissemination and exploitation plan"),
+                                      href = "https://zenodo.org/record/3924435#.YZzKAGDMJPZ",
+                                      target = "blank"),
+                                    a(h5("Advanced post-graduate training programme launched"),
+                                      href = "https://zenodo.org/record/3237479#.YZzJAGDMJPY",
+                                      target = "blank"),
+                                    a(h5("Project webpage"),
+                                      href = "https://zenodo.org/record/3075340#.YZzJAmDMJPY",
+                                      target = "blank"),
+                                    a(h5("Tutor Web educational material"),
                                       href = "https://zenodo.org/record/4564862#.YQfQT44zZPY",
                                     target = "blank"), 
                                     tags$li(span("Publications", style = "color:darkblue")),
@@ -138,9 +191,12 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                            tabPanel("Background",includeMarkdown("ASE.Rmd"),
                                     a(h5("Case study characterization"),
                                       href = "https://zenodo.org/record/3065943#.YRt1v4gzZPY",
-                                      target = "blank")),
+                                      target = "blank")
+                                    ),
+                          
                            tabPanel("Stakeholder interaction", h1("Stakeholder interaction in the Atlantic SouthEast", style = "color: darkblue"),
-                                    h1("Main deliverables for this WP", style = "color: darkblue"),
+                                    includeMarkdown("StakeholderASE.Rmd"),
+                                    h1("Main deliverables for this CS", style = "color: darkblue"),
                                     a(h5("Executive report on the stakeholder Hub: attributes, tools and feedback"),
                                       href = "https://zenodo.org/record/3064929#.YRtzy4gzZPY",
                                       target = "blank"),
@@ -148,11 +204,20 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       href = "https://zenodo.org/record/4565129#.YRuKg4gzZPY",
                                       target = "blank")
                                     ),
-                           tabPanel("Scientific advances", h1(span("Main Deliverables", style = "color: darkblue"),"on biological knowledge"),
+                           tabPanel("Scientific advances", includeMarkdown("Scientific.Rmd"), h1("Main Deliverables on biological knowledge", style = "color: darkblue"),
                                     a(h5("Review of current stock assessment models used in the FarFish Case Studies"),
                                       href = "https://zenodo.org/record/4555710#.YRuJTogzZPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Model outputs and indicators"),
+                                      href = "https://zenodo.org/record/5541269#.YYkD4WDMJPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Historical Fisheries data"),
+                                      href = "https://zenodo.org/record/5541279#.YYkE9mDMJPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Biological Fisheries data"),
+                                      href = "https://zenodo.org/record/5541281#.YYkE4WDMJPY",
                                       target = "blank")),
-                           tabPanel("Governance and value chain analysis", h1(span("Main Deliverables", style = "color: darkblue"),"on value chain and governance"),
+                           tabPanel("Governance and value chain analysis",includeMarkdown("Governance.Rmd"),h1("Main Deliverables on value chain and governance", style = "color: darkblue"),
                                     a(h5("Evaluation of the governance structures of the cases"),
                                       href = "https://zenodo.org/record/3073754#.YRt5DIgzZPY",
                                       target = "blank"),
@@ -161,7 +226,8 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       target = "blank")
                                     ),
                            tabPanel("Management recommendations (MRs)", h1(span("Management Recommendations", style = "color: darkblue"),": invitations, reports and lessons learnt"),
-                                    h1("Main deliverables for this WP", style = "color: darkblue"),
+                                    includeMarkdown("MRASE.Rmd"),
+                                    h1("Main deliverables related to the MR proccess", style = "color: darkblue"),
                                     a(h5("General Guidelines for making MRs"),
                                       href = "https://zenodo.org/record/3073298#.YRt3qYgzZPY",
                                       target = "blank"),
@@ -184,7 +250,8 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       href = "https://zenodo.org/record/4580234#.YRuTy4gzZPY",
                                       target = "blank")
                                     ),
-                           tabPanel("Audit", h1(span("Audit results", style = "color: darkblue"),"for each of the MRs"),
+                           tabPanel("Audit",  includeMarkdown("Audit.Rmd"),
+                                    h1(span("Audit results", style = "color: darkblue"),"for each of the MRs"),
                                     a(h5("Report on challenges and suggestions for improvements (following analysis of governance and socio-economics in the FarFish case studies)"),
                                       href = "https://zenodo.org/record/4445727#.YRuFtYgzZPY",
                                       target = "blank"),
@@ -194,7 +261,8 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                     a(h5("Audit of Management Recommendations 1"),
                                       href = "https://zenodo.org/record/4555772#.YRuJ9ogzZPY",
                                       target = "blank")),
-                           tabPanel("Visualisation materials and tools", h1(span("Visualization", style = "color: darkblue"),"of data gathered and other tools"),
+                           tabPanel("Visualisation materials and tools", includeMarkdown("Visualization.Rmd"),
+                                    h1(span("Visualization", style = "color: darkblue"),"of data gathered and other tools"),
                                     a(h5("Visualisation materials and tools available for MR1 development"),
                                       href = "https://zenodo.org/record/3074872#.YRuB-ogzZPY",
                                       target = "blank"),
@@ -209,8 +277,24 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       target = "blank"),
                                     a(h5("Interactive Platform to integrate codes, visualization and data interaction tools for the Case Studies"),
                                       href = "https://zenodo.org/record/4582010#.YRuX8ogzZPY",
+                                      target = "blank"),
+                                    a(h5("FarFish FFDB Decision Support and visualisation tools outputs"),
+                                      href = "https://zenodo.org/record/5541290#.YYkFJWDMJPY",
                                       target = "blank")),
-                           tabPanel("Dissemination and capacity building", h1(span("Main Events", style = "color: darkblue"),"and workshops"))
+                           tabPanel("Dissemination and capacity building",  includeMarkdown("Dissemination.Rmd"),
+                                    h1(span("Main publications", style = "color: darkblue"),"and events"),
+                                    a(h5("Tutor Web educational material"),
+                                      href = "https://zenodo.org/record/4564862#.YQfQT44zZPY",
+                                      target = "blank"),
+                                    a(h5("Dissemination and exploitation plan"),
+                                      href = "https://zenodo.org/record/3924435#.YZzKAGDMJPZ",
+                                      target = "blank"),
+                                    a(h5("Advanced post-graduate training programme launched"),
+                                      href = "https://zenodo.org/record/3237479#.YZzJAGDMJPY",
+                                      target = "blank"),
+                                    a(h5("Project webpage"),
+                                      href = "https://zenodo.org/record/3075340#.YZzJAmDMJPY",
+                                      target = "blank"))
                 ),
                 navbarMenu("Cabo Verde",
                            tabPanel("Background", includeMarkdown("cabo.Rmd"), 
@@ -219,6 +303,8 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       href = "https://zenodo.org/record/3065943#.YRt1v4gzZPY",
                                       target = "blank")),
                            tabPanel("Stakeholder interaction", h1("Stakeholder interaction in Cape Verde", style = "color: darkblue"),
+                                    includeMarkdown("StakeholderCV.Rmd"),
+                                    h1("Main deliverables for this CS", style = "color: darkblue"),
                                     a(h5("Executive report on the stakeholder Hub: attributes, tools and feedback"),
                                       href = "https://zenodo.org/record/3064929#.YRtzy4gzZPY",
                                       target = "blank"),
@@ -226,22 +312,44 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       href = "https://zenodo.org/record/4565129#.YRuKg4gzZPY",
                                       target = "blank")
                                     ),
-                           tabPanel("Scientific advances", h1(span("Main Deliverables", style = "color: darkblue"),"on biological knowledge"),
+                           tabPanel("Scientific advances",  includeMarkdown("Scientific.Rmd"), h1("Main Deliverables on biological knowledge", style = "color: darkblue"),
                                     a(h5("Templates and protocols for self-sampling"),
                                       href = "https://zenodo.org/record/3066162#.YRt29IgzZPY",
                                       target = "blank"),
                                     a(h5("Review of current stock assessment models used in the FarFish Case Studies"),
                                       href = "https://zenodo.org/record/4555710#.YRuJTogzZPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Model outputs and indicators"),
+                                      href = "https://zenodo.org/record/5541269#.YYkD4WDMJPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Historical Fisheries data"),
+                                      href = "https://zenodo.org/record/5541279#.YYkE9mDMJPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Biological Fisheries data"),
+                                      href = "https://zenodo.org/record/5541281#.YYkE4WDMJPY",
                                       target = "blank")),
-                           tabPanel("Governance and value chain analysis", h1(span("Main Deliverables", style = "color: darkblue"),"on value chain and governance"),
+                           tabPanel("Governance and value chain analysis",includeMarkdown("Governance.Rmd"),h1("Main Deliverables on value chain and governance", style = "color: darkblue"),
                                     a(h5("Evaluation of the governance structures of the cases"),
                                       href = "https://zenodo.org/record/3073754#.YRt5DIgzZPY",
                                       target = "blank"),
                                     a(h5("Description on the Case Study Value Chains"),
                                       href = "https://zenodo.org/record/3074057#.YRuArIgzZPY",
+                                      target = "blank"),
+                                    a(h5("Tuna imports of the EU from West Africa, 2015-2019 (.xls database,Comext)"),
+                                      href = "https://zenodo.org/record/5539855#.YYkBCWDMJPY",
+                                      target = "blank"),
+                                    a(h5("Tuna exports from West Africa, 2014-2019 (.xls database, FAOFishStat)"),
+                                      href = "https://zenodo.org/record/5539861",
+                                      target = "blank"),
+                                    a(h5("EU vessel catches of tuna ICCAT area (2018)"),
+                                      href = "https://zenodo.org/record/5607100#.YYkHOGDMJPY",
+                                      target = "blank"),
+                                    a(h5("STECF economic data selected vessel groups purse seiners and hook vessels (2015-2018)"),
+                                      href = "https://zenodo.org/record/5607100#.YYkHOGDMJPY",
                                       target = "blank")
                                     ),
-                           tabPanel("Management recommendations (MRs)", h1(span("Management Recommendations", style = "color: darkblue"),": invitations, reports and lessons learnt"),
+                           tabPanel("Management recommendations (MRs)", includeMarkdown("MRCV.Rmd"), h1(span("Management Recommendations", style = "color: darkblue"),": invitations, reports and lessons learnt"),
+                                    h1("Main deliverables related to the MR proccess", style = "color: darkblue"),
                                     a(h5("General Guidelines for making MRs"),
                                       href = "https://zenodo.org/record/3073298#.YRt3qYgzZPY",
                                       target = "blank"),
@@ -264,7 +372,8 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       href = "https://zenodo.org/record/4580234#.YRuTy4gzZPY",
                                       target = "blank")
                                     ),
-                           tabPanel("Audit", h1(span("Audit results", style = "color: darkblue"),"for each of the MRs"),
+                           tabPanel("Audit",  includeMarkdown("Audit.Rmd"),
+                                    h1(span("Audit results", style = "color: darkblue"),"for each of the MRs"),
                                     a(h5("Report on challenges and suggestions for improvements (following analysis of governance and socio-economics in the FarFish case studies)"),
                                       href = "https://zenodo.org/record/4445727#.YRuFtYgzZPY",
                                       target = "blank"),
@@ -274,7 +383,8 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                     a(h5("Audit of Management Recommendations 1"),
                                       href = "https://zenodo.org/record/4555772#.YRuJ9ogzZPY",
                                       target = "blank")),
-                           tabPanel("Visualisation materials and tools", h1(span("Visualization", style = "color: darkblue"),"of data gathered and other tools"),
+                           tabPanel("Visualisation materials and tools", includeMarkdown("Visualization.Rmd"),
+                                    h1(span("Visualization", style = "color: darkblue"),"of data gathered and other tools"),
                                     a(h5("Visualisation materials and tools available for MR1 development"),
                                       href = "https://zenodo.org/record/3074872#.YRuB-ogzZPY",
                                       target = "blank"),
@@ -289,8 +399,24 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       target = "blank"),
                                     a(h5("Interactive Platform to integrate codes, visualization and data interaction tools for the Case Studies"),
                                       href = "https://zenodo.org/record/4582010#.YRuX8ogzZPY",
+                                      target = "blank"),
+                                    a(h5("FarFish FFDB Decision Support and visualisation tools outputs"),
+                                      href = "https://zenodo.org/record/5541290#.YYkFJWDMJPY",
                                       target = "blank")),
-                           tabPanel("Dissemination and capacity building", h1(span("Main Events", style = "color: darkblue"),"and workshops"))
+                           tabPanel("Dissemination and capacity building",  includeMarkdown("Dissemination.Rmd"),
+                                    h1(span("Main publications", style = "color: darkblue"),"and events"),
+                                    a(h5("Tutor Web educational material"),
+                                      href = "https://zenodo.org/record/4564862#.YQfQT44zZPY",
+                                      target = "blank"),
+                                    a(h5("Dissemination and exploitation plan"),
+                                      href = "https://zenodo.org/record/3924435#.YZzKAGDMJPZ",
+                                      target = "blank"),
+                                    a(h5("Advanced post-graduate training programme launched"),
+                                      href = "https://zenodo.org/record/3237479#.YZzJAGDMJPY",
+                                      target = "blank"),
+                                    a(h5("Project webpage"),
+                                      href = "https://zenodo.org/record/3075340#.YZzJAmDMJPY",
+                                      target = "blank"))
 ),
                 navbarMenu("Senegal",
                            tabPanel("Background", includeMarkdown("sen.Rmd"), 
@@ -299,29 +425,53 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       href = "https://zenodo.org/record/3065943#.YRt1v4gzZPY",
                                       target = "blank")),
                            tabPanel("Stakeholder interaction", h1("Stakeholder interaction in Senegal", style = "color: darkblue"),
+                                    includeMarkdown("StakeholderSen.Rmd"),
+                                    h1("Main deliverables for this CS", style = "color: darkblue"),
                                     a(h5("Executive report on the stakeholder Hub: attributes, tools and feedback"),
                                       href = "https://zenodo.org/record/3064929#.YRtzy4gzZPY",
                                       target = "blank"),
                                     a(h5("Intermediate report on the Stakeholder Hub implementation: lessons learnt and improvement areas for the second spiral interaction"),
                                       href = "https://zenodo.org/record/4565129#.YRuKg4gzZPY",
                                       target = "blank")),
-                           tabPanel("Scientific advances", h1(span("Main Deliverables", style = "color: darkblue"),"on biological knowledge"),
+                           tabPanel("Scientific advances",  includeMarkdown("Scientific.Rmd"), h1("Main Deliverables on biological knowledge", style = "color: darkblue"),
                                     a(h5("Templates and protocols for self-sampling"),
                                       href = "https://zenodo.org/record/3066162#.YRt29IgzZPY",
                                       target = "blank"),
                                     a(h5("Review of current stock assessment models used in the FarFish Case Studies"),
                                       href = "https://zenodo.org/record/4555710#.YRuJTogzZPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Model outputs and indicators"),
+                                      href = "https://zenodo.org/record/5541269#.YYkD4WDMJPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Historical Fisheries data"),
+                                      href = "https://zenodo.org/record/5541279#.YYkE9mDMJPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Biological Fisheries data"),
+                                      href = "https://zenodo.org/record/5541281#.YYkE4WDMJPY",
                                       target = "blank")),
-                           tabPanel("Governance and value chain analysis", h1(span("Main Deliverables", style = "color: darkblue"),"on value chain and governance"),
+                           tabPanel("Governance and value chain analysis", includeMarkdown("Governance.Rmd"),h1("Main Deliverables on value chain and governance", style = "color: darkblue"),
                                     a(h5("Evaluation of the governance structures of the cases"),
                                       href = "https://zenodo.org/record/3073754#.YRt5DIgzZPY",
                                       target = "blank"),
                                     a(h5("Description on the Case Study Value Chains"),
                                       href = "https://zenodo.org/record/3074057#.YRuArIgzZPY",
+                                      target = "blank"),
+                                    a(h5("Tuna imports of the EU from West Africa, 2015-2019 (.xls database,Comext)"),
+                                      href = "https://zenodo.org/record/5539855#.YYkBCWDMJPY",
+                                      target = "blank"),
+                                    a(h5("Tuna exports from West Africa, 2014-2019 (.xls database, FAOFishStat)"),
+                                      href = "https://zenodo.org/record/5539861",
+                                      target = "blank"),
+                                    a(h5("EU vessel catches of tuna ICCAT area (2018)"),
+                                      href = "https://zenodo.org/record/5607100#.YYkHOGDMJPY",
+                                      target = "blank"),
+                                    a(h5("STECF economic data selected vessel groups purse seiners and hook vessels (2015-2018)"),
+                                      href = "https://zenodo.org/record/5607100#.YYkHOGDMJPY",
                                       target = "blank")
                                     ),
                            tabPanel("Management recommendations (MRs)", h1(span("Management Recommendations", style = "color: darkblue"),": invitations, reports and lessons learnt"),
-                                    h1("Main deliverables for this WP", style = "color: darkblue"),
+                                    includeMarkdown("MRSEN.Rmd"),
+                                    h1("Main deliverables related to the MR proccess", style = "color: darkblue"),
                                     a(h5("General Guidelines for making MRs"),
                                       href = "https://zenodo.org/record/3073298#.YRt3qYgzZPY",
                                       target = "blank"),
@@ -350,7 +500,8 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       href = "https://zenodo.org/record/4580234#.YRuTy4gzZPY",
                                       target = "blank")
                                     ),
-                           tabPanel("Audit", h1(span("Audit results", style = "color: darkblue"),"for each of the MRs"),
+                           tabPanel("Audit", includeMarkdown("Audit.Rmd"),
+                                    h1(span("Audit results", style = "color: darkblue"),"for each of the MRs"),
                                     a(h5("Report on challenges and suggestions for improvements (following analysis of governance and socio-economics in the FarFish case studies)"),
                                       href = "https://zenodo.org/record/4445727#.YRuFtYgzZPY",
                                       target = "blank"),
@@ -393,7 +544,7 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                         submitButton(text = "Submit", icon = NULL, width = NULL),
                                         selectInput("senyear", 
                                                     label = "Choose a year", 
-                                                    choices = list("2012"="X2012",
+                                                    choices = list("2012"= "X2012",
                                                                    "2013"="X2013",
                                                                    "2014"="X2014",
                                                                    "2015"="X2015",
@@ -405,7 +556,8 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                         plotOutput("plotsenyear")
                                     ),
                                     tags$iframe(style="height:400px; width:100%; scrolling=yes", 
-                                                src="https://drive.google.com/file/d/1TbgAQtzgtyT_sIO9mrSUa3sXgZAMBpG3/view?usp=sharing"),
+                                                src="sen_vms.pdf"),
+                                    h1(span("Visualization", style = "color: darkblue"),"of data gathered and other tools"),
                                     a(h5("Report on the developments needed to produce relevant management tools"),
                                       href = "https://zenodo.org/record/3075061#.YRuD14gzZPY",
                                       target = "blank"),
@@ -414,9 +566,25 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       target = "blank"),
                                     a(h5("Interactive Platform to integrate codes, visualization and data interaction tools for the Case Studies"),
                                       href = "https://zenodo.org/record/4582010#.YRuX8ogzZPY",
+                                      target = "blank"),
+                                    a(h5("FarFish FFDB Decision Support and visualisation tools outputs"),
+                                      href = "https://zenodo.org/record/5541290#.YYkFJWDMJPY",
                                       target = "blank")
                            ),
-                           tabPanel("Dissemination and capacity building")
+                           tabPanel("Dissemination and capacity building", includeMarkdown("Dissemination.Rmd"),
+                                    h1(span("Main publications", style = "color: darkblue"),"and events"),
+                                    a(h5("Tutor Web educational material"),
+                                      href = "https://zenodo.org/record/4564862#.YQfQT44zZPY",
+                                      target = "blank"),
+                                    a(h5("Dissemination and exploitation plan"),
+                                      href = "https://zenodo.org/record/3924435#.YZzKAGDMJPZ",
+                                      target = "blank"),
+                                    a(h5("Advanced post-graduate training programme launched"),
+                                      href = "https://zenodo.org/record/3237479#.YZzJAGDMJPY",
+                                      target = "blank"),
+                                    a(h5("Project webpage"),
+                                      href = "https://zenodo.org/record/3075340#.YZzJAmDMJPY",
+                                      target = "blank"))
 ),
                 navbarMenu("Mauritania",
                            tabPanel("Background", includeMarkdown("mau.Rmd"),
@@ -424,7 +592,7 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       href = "https://zenodo.org/record/3065943#.YRt1v4gzZPY",
                                       target = "blank")),
                            tabPanel("Stakeholder interaction", h1("Stakeholder interaction in Mauritania", style = "color: darkblue"),
-                                   
+                                    includeMarkdown("StakeholderMau.Rmd"),
                                     h1("Main deliverables for this WP", style = "color: darkblue"),
                                     a(h5("Executive report on the stakeholder Hub: attributes, tools and feedback"),
                                       href = "https://zenodo.org/record/3064929#.YRtzy4gzZPY",
@@ -433,23 +601,39 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       href = "https://zenodo.org/record/4565129#.YRuKg4gzZPY",
                                       target = "blank")
                                     ),
-                           tabPanel("Scientific advances", h1(span("Main Deliverables", style = "color: darkblue"),"on biological knowledge"),
+                           tabPanel("Scientific advances",  includeMarkdown("Scientific.Rmd"), h1("Main Deliverables on biological knowledge", style = "color: darkblue"),
                                     a(h5("Templates and protocols for self-sampling"),
                                       href = "https://zenodo.org/record/3066162#.YRt29IgzZPY",
                                       target = "blank"),
                                     a(h5("Review of current stock assessment models used in the FarFish Case Studies"),
                                       href = "https://zenodo.org/record/4555710#.YRuJTogzZPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Model outputs and indicators"),
+                                      href = "https://zenodo.org/record/5541269#.YYkD4WDMJPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Historical Fisheries data"),
+                                      href = "https://zenodo.org/record/5541279#.YYkE9mDMJPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Biological Fisheries data"),
+                                      href = "https://zenodo.org/record/5541281#.YYkE4WDMJPY",
                                       target = "blank")),
-                           tabPanel("Governance and value chain analysis", h1(span("Main Deliverables", style = "color: darkblue"),"on value chain and governance"),
+                           tabPanel("Governance and value chain analysis", includeMarkdown("Governance.Rmd"),h1("Main Deliverables on value chain and governance", style = "color: darkblue"),
                                     a(h5("Evaluation of the governance structures of the cases"),
                                                          href = "https://zenodo.org/record/3073754#.YRt5DIgzZPY",
                                                          target = "blank"),
                                     a(h5("Description on the Case Study Value Chains"),
                                       href = "https://zenodo.org/record/3074057#.YRuArIgzZPY",
+                                      target = "blank"),
+                                    a(h5("Exports fish meal and oil from Mauritania 2010-2020"),
+                                      href = "https://zenodo.org/record/5607086#.YYkG62DMJPY",
+                                      target = "blank"),
+                                    a(h5("EU vessel catches of tuna ICCAT area (2018)"),
+                                      href = "https://zenodo.org/record/5607100#.YYkHOGDMJPY",
                                       target = "blank")
                                     ),
                            tabPanel("Management recommendations (MRs)", h1(span("Management Recommendations", style = "color: darkblue"),": invitations, reports and lessons learnt"),
-                                    h1("Main deliverables for this WP", style = "color: darkblue"),
+                                    includeMarkdown("MRMAU.Rmd"),
+                                    h1("Main deliverables related to the MR proccess", style = "color: darkblue"),
                                     a(h5("General Guidelines for making MRs"),
                                       href = "https://zenodo.org/record/3073298#.YRt3qYgzZPY",
                                       target = "blank"),
@@ -478,7 +662,8 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       href = "https://zenodo.org/record/4580234#.YRuTy4gzZPY",
                                       target = "blank")
                                     ),
-                           tabPanel("Audit", h1(span("Audit results", style = "color: darkblue"),"for each of the MRs"),
+                           tabPanel("Audit", includeMarkdown("Audit.Rmd"),
+                                    h1(span("Audit results", style = "color: darkblue"),"for each of the MRs"),
                                     a(h5("Report on challenges and suggestions for improvements (following analysis of governance and socio-economics in the FarFish case studies)"),
                                       href = "https://zenodo.org/record/4445727#.YRuFtYgzZPY",
                                       target = "blank"),
@@ -536,8 +721,9 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                         plotOutput("plotmauflag"),
                                         plotOutput("plotmauyear")
                                     ),
-                                    tags$iframe(style="height:400px; width:100%; scrolling=yes", 
-                                                src="https://drive.google.com/file/d/1U4gBk0ZKdAXixKWFvhHX0orJ1Ukhmz97/view?usp=sharing"),
+                                    tags$iframe(style="height:400px; width:100%; scrolling=yes",
+                                                src="mau_vms.pdf"),
+                                    h1(span("Visualization", style = "color: darkblue"),"of data gathered and other tools"),
                                     a(h5("Report on the developments needed to produce relevant management tools"),
                                       href = "https://zenodo.org/record/3075061#.YRuD14gzZPY",
                                       target = "blank"),
@@ -546,9 +732,25 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       target = "blank"),
                                     a(h5("Interactive Platform to integrate codes, visualization and data interaction tools for the Case Studies"),
                                       href = "https://zenodo.org/record/4582010#.YRuX8ogzZPY",
+                                      target = "blank"),
+                                    a(h5("FarFish FFDB Decision Support and visualisation tools outputs"),
+                                      href = "https://zenodo.org/record/5541290#.YYkFJWDMJPY",
                                       target = "blank")
                            ),
-                           tabPanel("Dissemination and capacity building")
+                           tabPanel("Dissemination and capacity building", includeMarkdown("Dissemination.Rmd"),
+                                    h1(span("Main publications", style = "color: darkblue"),"and events"),
+                                    a(h5("Tutor Web educational material"),
+                                      href = "https://zenodo.org/record/4564862#.YQfQT44zZPY",
+                                      target = "blank"),
+                                    a(h5("Dissemination and exploitation plan"),
+                                      href = "https://zenodo.org/record/3924435#.YZzKAGDMJPZ",
+                                      target = "blank"),
+                                    a(h5("Advanced post-graduate training programme launched"),
+                                      href = "https://zenodo.org/record/3237479#.YZzJAGDMJPY",
+                                      target = "blank"),
+                                    a(h5("Project webpage"),
+                                      href = "https://zenodo.org/record/3075340#.YZzJAmDMJPY",
+                                      target = "blank"))
 ),
                 navbarMenu("Seychelles",
                            tabPanel("Background", includeMarkdown("sey.Rmd"),
@@ -556,6 +758,7 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       href = "https://zenodo.org/record/3065943#.YRt1v4gzZPY",
                                       target = "blank")),
                            tabPanel("Stakeholder interaction", h1("Stakeholder interaction in Seychelles", style = "color: darkblue"),
+                                    includeMarkdown("StakeholderSey.Rmd"),
                                     h1("Main deliverables for this WP", style = "color: darkblue"),
                                     a(h5("Executive report on the stakeholder Hub: attributes, tools and feedback"),
                                       href = "https://zenodo.org/record/3064929#.YRtzy4gzZPY",
@@ -564,11 +767,24 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       href = "https://zenodo.org/record/4565129#.YRuKg4gzZPY",
                                       target = "blank")
                                     ),
-                           tabPanel("Scientific advances", h1(span("Main Deliverables", style = "color: darkblue"),"on biological knowledge"),
+                           tabPanel("Scientific advances", includeMarkdown("Scientific.Rmd"), h1("Main Deliverables on biological knowledge", style = "color: darkblue"),
                                     a(h5("Review of current stock assessment models used in the FarFish Case Studies"),
                                       href = "https://zenodo.org/record/4555710#.YRuJTogzZPY",
-                                      target = "blank")),
-                           tabPanel("Governance and value chain analysis", h1(span("Main Deliverables", style = "color: darkblue"),"on value chain and governance"),
+                                      target = "blank"),
+                                    a(h5("SFA Fisheries Statistical report"),
+                                      href = "https://zenodo.org/record/5525755#.YYkAiGDMJPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Model outputs and indicators"),
+                                      href = "https://zenodo.org/record/5541269#.YYkD4WDMJPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Historical Fisheries data"),
+                                      href = "https://zenodo.org/record/5541279#.YYkE9mDMJPY",
+                                      target = "blank"),
+                                    a(h5("FarFish Database (FFDB) Biological Fisheries data"),
+                                      href = "https://zenodo.org/record/5541281#.YYkE4WDMJPY",
+                                      target = "blank")
+                                    ),
+                           tabPanel("Governance and value chain analysis", includeMarkdown("Governance.Rmd"),h1("Main Deliverables on value chain and governance", style = "color: darkblue"),
                                     a(h5("Evaluation of the governance structures of the cases"),
                                       href = "https://zenodo.org/record/3073754#.YRt5DIgzZPY",
                                       target = "blank"),
@@ -580,9 +796,14 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       target = "blank"),
                                     a(h5("Second MR invitations submitted to case studies"),
                                       href = "https://zenodo.org/record/4580234#.YRuTy4gzZPY",
+                                      target = "blank"),
+                                    a(h5("STECF economic data selected vessel groups purse seiners and hook vessels (2015-2018)"),
+                                      href = "https://zenodo.org/record/5607100#.YYkHOGDMJPY",
                                       target = "blank")
                                     ),
                            tabPanel("Management recommendations (MRs)", h1(span("Management Recommendations", style = "color: darkblue"),": invitations, reports and lessons learnt"),
+                                    includeMarkdown("MRSEY.Rmd"),
+                                    h1("Main deliverables related to the MR proccess", style = "color: darkblue"),
                                     a(h5("General Guidelines for making MRs"),
                                       href = "https://zenodo.org/record/3073298#.YRt3qYgzZPY",
                                       target = "blank"),
@@ -599,7 +820,8 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       href = "https://zenodo.org/record/4555595#.YRuIyogzZPY",
                                       target = "blank")
                                     ),
-                           tabPanel("Audit", h1(span("Audit results", style = "color: darkblue"),"for each of the MRs"),
+                           tabPanel("Audit",  includeMarkdown("Audit.Rmd"),
+                                    h1(span("Audit results", style = "color: darkblue"),"for each of the MRs"),
                                     a(h5("Report on challenges and suggestions for improvements (following analysis of governance and socio-economics in the FarFish case studies)"),
                                       href = "https://zenodo.org/record/4445727#.YRuFtYgzZPY",
                                       target = "blank"),
@@ -609,7 +831,8 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                     a(h5("Audit of Management Recommendations 1"),
                                       href = "https://zenodo.org/record/4555772#.YRuJ9ogzZPY",
                                       target = "blank")),
-                           tabPanel("Visualisation materials and tools", h1(span("Visualization", style = "color: darkblue"),"of data gathered and other tools"),
+                           tabPanel("Visualisation materials and tools", includeMarkdown("Visualization.Rmd"),
+                                    h1(span("Visualization", style = "color: darkblue"),"of data gathered and other tools"),
                                     a(h5("Visualisation materials and tools available for MR1 development"),
                                       href = "https://zenodo.org/record/3074872#.YRuB-ogzZPY",
                                       target = "blank"),
@@ -624,11 +847,27 @@ ui <- navbarPage("FarFish H2020", img(src = "logo.png", height = 85, width = 80)
                                       target = "blank"),
                                     a(h5("Interactive Platform to integrate codes, visualization and data interaction tools for the Case Studies"),
                                       href = "https://zenodo.org/record/4582010#.YRuX8ogzZPY",
+                                      target = "blank"),
+                                    a(h5("FarFish FFDB Decision Support and visualisation tools outputs"),
+                                      href = "https://zenodo.org/record/5541290#.YYkFJWDMJPY",
                                       target = "blank")),
-                           tabPanel("Dissemination and capacity building", h1(span("Main Events", style = "color: darkblue"),"and workshops"))
+                           tabPanel("Dissemination and capacity building",  includeMarkdown("Dissemination.Rmd"),
+                                    h1(span("Main publications", style = "color: darkblue"),"and events"),
+                                    a(h5("Tutor Web educational material"),
+                                      href = "https://zenodo.org/record/4564862#.YQfQT44zZPY",
+                                      target = "blank"),
+                                    a(h5("Dissemination and exploitation plan"),
+                                      href = "https://zenodo.org/record/3924435#.YZzKAGDMJPZ",
+                                      target = "blank"),
+                                    a(h5("Advanced post-graduate training programme launched"),
+                                      href = "https://zenodo.org/record/3237479#.YZzJAGDMJPY",
+                                      target = "blank"),
+                                    a(h5("Project webpage"),
+                                      href = "https://zenodo.org/record/3075340#.YZzJAmDMJPY",
+                                      target = "blank"))
                 ),
 
-navbarMenu("DLM Tool",
+navbarMenu("FarFish-DLMtool",
            tabPanel("Background",h1(span("Background", style = "color: darkblue")), h4(p("The FarFish-DLMtool is an interactive tool where the users can incorporate their data and obtain
 pertinent information in return. The user guide provided in this report allows anyone to use the tool
 after the project ends. In addition, all parts of the project are open source, which means the code
@@ -654,13 +893,11 @@ remaining useful beyond the life of the project.")),h4(p("The app feeds into the
               ), 
            tabPanel("Manual", 
                     tags$iframe(style="height:400px; width:100%; scrolling=yes", 
-                                src="https://drive.google.com/file/d/1K7Jb3J-oz_dISwSSVi0EEYfffl2Habbx/view?usp=sharing"),
+                                src="userguide_fddb.pdf"),
                     a(h5("Data Input Protocol for the FFDB"),
                       href = "https://zenodo.org/record/3074685#.YRuBxIgzZPY",
                       target = "blank")
                     ),
-           tabPanel("Tutorial"),
-           tabPanel("Dissemination material"),
            tabPanel("Tool",
                     a(h5("To introduce/upload your data click here"),
                       href = "https://ffdb.farfish.eu/upload?template=dlmtool",
@@ -674,87 +911,68 @@ remaining useful beyond the life of the project.")),h4(p("The app feeds into the
 ))
 #Nombrar outputs
 #textOutput(outputId = "textflag"),
-#textOutput(outputId = "textyear"),
-#verbatimTextOutput("verb")
-
-
-#cALL DATA
-senegalporpais <- senegal2
-senegalperyear <- SENEGAL3
-mauritaniaperflag <- mauritania2
-mauritaniaperyear <- mauritania
-#NECESITO CONVERTIR INT A NUM PARA TODAS LAS COLUMNAS DE AÑOS
-#senegal[2:7] <- lapply(senegal[2:7], as.integer)
-#mauritania[2:7] <- lapply(mauritania[2:7], as.integer)
-
-
-#NECESITO CONVERTIR INT A NUM PARA TODAS LAS COLUMNAS DE AÑOS
-#####
-########
-##########
-####################
-#########################
-
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-    
-    formulaText <- reactive({
-        paste(input$senflag, "~ YEAR")
-    })
-    
-    # Return the formula text for printing as a caption ----
-    output$caption <- renderText({
-        formulaText()
-    })
-    # Generate a plot of the requested variable against mpg ----
-    # and only exclude outliers if requested
-    output$plotsenflag <- renderPlot({
-        plot(as.formula(formulaText()),
-             data = senegalporpais,
-             col = "#75AADB", pch = 19, type = "o") #quitar type "" para volver a gráfico de puntos separados
-    })
-    
-    #HISTOGRAMA DE CADA AÑO POR PAIS
-    formulaText2 <- reactive({
-        paste(input$senyear, "~ PAIS")
-    })
-    
-    # GENERAR HISTGRAMA POR AÑO
-    output$plotsenyear <- renderPlot({
-        barplot(as.formula(formulaText2()),
-                data = senegalperyear,
-                col = rainbow(5), pch = 19, las=2, cex.names=.9)
-    }) 
-    
-    
-    formulaText3 <- reactive({
-        paste(input$mauflag, "~ YEAR")
-    })
-    
   
-    # Generate a plot of the requested variable against mpg ----
-    # and only exclude outliers if requested
-    output$plotmauflag <- renderPlot({
-        plot(as.formula(formulaText3()),
-             data = mauritaniaperflag,
-             col = "#75AADB", pch = 19, type = "o") #quitar type "" para volver a gráfico de puntos separados
-    })
-    
-    #HISTOGRAMA DE CADA AÑO POR PAIS
-    
-    formulaText4 <- reactive({
-        paste(input$mauyear, "~ PAIS")
-    })
-    
-    # GENERAR HISTOGRAMA POR AÑO
-    output$plotmauyear <- renderPlot({
-        barplot(as.formula(formulaText4()),
-                data = mauritaniaperyear,
-                col = rainbow(5), pch = 19, las=2, cex.names=.9)
-    })
-    
-    
+  formulaText <- reactive({
+    paste(input$senflag, "~ YEAR")
+  })
+  
+  # Return the formula text for printing as a caption ----
+  output$caption <- renderText({
+    formulaText()
+  })
+  # Generate a plot of the requested variable against mpg ----
+  # and only exclude outliers if requested
+  output$plotsenflag <- renderPlot({
+    plot(as.formula(formulaText()),
+         data = senegalporpais,
+         col = "#75AADB", pch = 19, type = "o") #quitar type "" para volver a gráfico de puntos separados
+  })
+  
+  #HISTOGRAMA DE CADA AÑO POR PAIS
+  formulaText2 <- reactive({
+    paste(input$senyear, "~ PAIS")
+  })
+  
+  # GENERAR HISTGRAMA POR AÑO
+  output$plotsenyear <- renderPlot({
+    barplot(as.formula(formulaText2()),
+            data = senegalperyear,
+            col = rainbow(5), pch = 19, las=2, cex.names=.9)
+  }) 
+  
+  
+  formulaText3 <- reactive({
+    paste(input$mauflag, "~ YEAR")
+  })
+  
+  
+  # Generate a plot of the requested variable against mpg ----
+  # and only exclude outliers if requested
+  output$plotmauflag <- renderPlot({
+    plot(as.formula(formulaText3()),
+         data = mauritaniaperflag,
+         col = "#75AADB", pch = 19, type = "o") #quitar type "" para volver a gráfico de puntos separados
+  })
+  
+  #HISTOGRAMA DE CADA AÑO POR PAIS
+  
+  formulaText4 <- reactive({
+    paste(input$mauyear, "~ PAIS")
+  })
+  
+  # GENERAR HISTOGRAMA POR AÑO
+  output$plotmauyear <- renderPlot({
+    barplot(as.formula(formulaText4()),
+            data = mauritaniaperyear,
+            col = rainbow(5), pch = 19, las=2, cex.names=.9)
+  })
+  
+  
 }
 
 # Run the application 
 shinyApp(ui = ui, server = server)
+
+
